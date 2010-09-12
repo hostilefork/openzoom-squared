@@ -1,0 +1,32 @@
+In order to build the OpenZoomSquared.fla in this directory to the desired
+OpenZoomSquared.swf, you will need something that can compile ActionScript3.
+
+You will also need to fetch the following library code into the org/, net/, 
+and caurina/ subdirectories of your project.  You'll be wanting the ActionScript3 
+(AS3) versions.
+
+
+Library: OpenZoom SDK
+Website: http://gasi.ch/blog/openzoom-sdk/
+Source: http://github.com/openzoom/sdk/tree/master/src/org/
+Target: ./org/
+
+Library: GhostInteractive OpenZoom Overlay Extension
+Website: http://labs.ghostinteractive.net/overlay-extension/ 
+Source: http://code.google.com/p/ghostinteractive/source/browse/#svn/trunk/AS3/net
+Target: ./net/
+
+Library: Caurina Tweener
+Website: http://code.google.com/p/tweener/
+Source: http://code.google.com/p/tweener/source/browse/#svn/trunk/as3/caurina
+Target: ./caurina/
+
+
+(I've linked to a browsable place where you can see the directory of files you'll 
+need, but you can download a zip of the SDK and pick the appropriate directory.)
+
+Lastly, in order for you to actually run the viewer you will need to have the
+data for the images and grid.  These are currently hardcoded as being found in
+a directory found in the same location as the SWF called "allsquares".  The
+proper data for this is produced by the generator which is written in Ruby and
+included in the openzoom-squared project.
