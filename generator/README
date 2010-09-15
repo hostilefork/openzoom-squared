@@ -1,0 +1,15 @@
+To run the ImaginationGenerator.rb script, you will need a Ruby environment that 
+has been configured with the following library "gems":
+
+	RMagick
+	hpricot
+
+You will also need to have the OpenZoom deep zooming file deepzoom.rb available:
+
+	http://github.com/openzoom/deepzoom.rb
+
+Note that depending on your system's performance and whether changes are
+made to deepzoom.rb, you may need to modify it in order to put in some
+destroy! calls.  See ImaginationGenerator.rb for details.  
+
+(Better README to come, just trying to push this project out at the moment.)
