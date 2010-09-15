@@ -2,7 +2,7 @@
  * SquaresDescriptor.as
  * Grid metrics and per-square information for the OpenZoom-Squared grid
  *
- *     http://hostilefork.com/openzoom-squared/
+ *	   http://hostilefork.com/openzoom-squared/
  *
  * Hacked together by The Hostile Fork (http://hostilefork.com)
  * License: MPL 1.1/GPL 3/LGPL 3
@@ -15,7 +15,7 @@
  * For insights and debate on the format choice, check this StackOverflow
  * question:
  *
- *     http://stackoverflow.com/questions/3692553/defining-an-xml-format-for-a-2d-array-grid-of-items
+ *	   http://stackoverflow.com/questions/3692553/defining-an-xml-format-for-a-2d-array-grid-of-items
  *
  * SquaresDescriptor is a class which reads in the XML file, and answers
  * various questions mapping image coordinates into the rows and columns.
@@ -40,21 +40,21 @@ import org.openzoom.flash.descriptors.IMultiScaleImageDescriptor
 
 public class SquaresDescriptor implements IDisposable
 {	
-    private var _source:String
+	private var _source:String
 	private var xmlRoot:XML
 	
 	private var url:String
-    private var urlLoader:URLLoader
+	private var urlLoader:URLLoader
 
 	
 	/**
 	 * INITIALIZATION
 	 *
 	 * Currently the constructor makes a "blank" object.  Instead you assign a 
-	 * URL to the "source" property and that triggers the load.  I just followed
+	 * URL to the "source" property and that triggers the load.	 I just followed
 	 * the precedent set in the OpenZoom SDK itself:
 	 *
-	 *     http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
+	 *	   http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
 	 *
 	 * Revisit if not appropriate for this simple descriptor.
 	 */
@@ -63,30 +63,30 @@ public class SquaresDescriptor implements IDisposable
 	{
 	}
 
-    public function get source():String
-    {
-        return _source
-    }
+	public function get source():String
+	{
+		return _source
+	}
 
-    public function set source(value:String):void
-    {
-    	if (String(value) === url)
-        	return
+	public function set source(value:String):void
+	{
+		if (String(value) === url)
+			return
 
-        url = String(value)
+		url = String(value)
 
-        urlLoader = new URLLoader(new URLRequest(url))
+		urlLoader = new URLLoader(new URLRequest(url))
 
-        urlLoader.addEventListener(Event.COMPLETE,
+		urlLoader.addEventListener(Event.COMPLETE,
 								   urlLoader_completeHandler,
 								   false, 0, true)
 
-        if (_source)
-        {
-            _source = null
+		if (_source)
+		{
+			_source = null
 			xmlRoot = null
-        }
-    }
+		}
+	}
 	
 	
 	/**
@@ -95,11 +95,11 @@ public class SquaresDescriptor implements IDisposable
 	 * Note that transforming from viewport coordinates to image coordinates came from this
 	 * code:
 	 * 
-	 *     http://github.com/openzoom/sdk/raw/fc0923325c446b8395bc522b08328b788614c686/examples/flex/coordinates/src/Coordinates.mxml
+	 *	   http://github.com/openzoom/sdk/raw/fc0923325c446b8395bc522b08328b788614c686/examples/flex/coordinates/src/Coordinates.mxml
 	 *
 	 * There is a discussion about the topic here:
 	 *
-	 *     http://community.openzoom.org/openzoom/topics/how_can_i_convert_mouse_click_coordinates_into_image_coordinates
+	 *	   http://community.openzoom.org/openzoom/topics/how_can_i_convert_mouse_click_coordinates_into_image_coordinates
 	 */
 	
 	public function getImagePointFromMouseEvent(image:MultiScaleImage,event:MouseEvent):Point
@@ -199,7 +199,7 @@ public class SquaresDescriptor implements IDisposable
 	/*
 	 * OVERALL GRID PROPERTIES
 	 *
-	 * These are properties of the whole grid.  Currently they are private methods,
+	 * These are properties of the whole grid.	Currently they are private methods,
 	 * because you can use the per-square property extractions instead.
 	 */
 	
@@ -250,7 +250,7 @@ public class SquaresDescriptor implements IDisposable
 	 * EVENT HANDLERS
 	 *
 	 * ActionScript3's "XML" type is different from ActionScript2's "XML" type
-	 * (which had its own load method).  Instead you are supposed to use the
+	 * (which had its own load method).	 Instead you are supposed to use the
 	 * UrlLoader for asynchronous loading of data from a URL, and then create
 	 * the XML data in the completion handler.
 	 *
@@ -258,22 +258,22 @@ public class SquaresDescriptor implements IDisposable
 	 * more sophisticated error handling with "urlLoader_ioErrorHandler" and
 	 * "urlLoader_securityErrorHandler":
 	 *
-	 *     http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
+	 *	   http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
 	 *
 	 * But I'm not sure quite what that buys you, and also "dispatchEvent" is
-	 * not available in non-GUI classes like this one.  So if there's an
+	 * not available in non-GUI classes like this one.	So if there's an
 	 * error in the XML, this will just crash out with the default handler.
 	 */
 	
-    private function urlLoader_completeHandler(event:Event):void
-    {
-        if (!urlLoader || !urlLoader.data)
-            return
+	private function urlLoader_completeHandler(event:Event):void
+	{
+		if (!urlLoader || !urlLoader.data)
+			return
 
-        xmlRoot = new XML(urlLoader.data)
+		xmlRoot = new XML(urlLoader.data)
 
-        _source = url
-    }
+		_source = url
+	}
 
 	
 	/**
@@ -282,24 +282,24 @@ public class SquaresDescriptor implements IDisposable
 	 * It seems that if you have an object which may have an outstanding
 	 * UrlLoader request, it's good to cancel it.  Precedent from OpenZoom SDK:
 	 *
-	 *      http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
+	 *		http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/components/MultiScaleImage.as
 	 *
 	 * Note that dispose() is only called if your object implements IDisposable
-     */
+	 */
 	
-    public function dispose():void
-    {
-    	try
-    	{
-	    	urlLoader.close()
-    	}
-    	catch(error:Error)
-    	{
-    		// Do nothing
-    	}
-    	
-    	urlLoader = null
-    }	
+	public function dispose():void
+	{
+		try
+		{
+			urlLoader.close()
+		}
+		catch(error:Error)
+		{
+			// Do nothing
+		}
+		
+		urlLoader = null
+	}	
 }
 
 }

@@ -2,20 +2,20 @@
  * CustomMouseController.as 
  * Custom click and SquaresDescriptor-aware variant of MouseController.as
  * 
- *     http://hostilefork.com/openzoom-squared/
+ *	   http://hostilefork.com/openzoom-squared/
  * 
  * Hacked together by The Hostile Fork (http://hostilefork.com)
  * License: MPL 1.1/GPL 3/LGPL 3
  *
  * The source from which this is derived is a file in the OpenZoom SDK:
  * 
- *     http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/viewport/controllers/MouseController.as
+ *	   http://github.com/openzoom/sdk/blob/master/src/org/openzoom/flash/viewport/controllers/MouseController.as
  *
- *  "OpenZoom SDK
- *   http://openzoom.org/
+ *	"OpenZoom SDK
+ *	 http://openzoom.org/
  *
- *   Developed by Daniel Gasienica <daniel@gasienica.ch>
- *   License: MPL 1.1/GPL 3/LGPL 3"
+ *	 Developed by Daniel Gasienica <daniel@gasienica.ch>
+ *	 License: MPL 1.1/GPL 3/LGPL 3"
  * 
  * The default MouseController in the SDK did not provide a hook for giving 
  * your own response to a click.  Since the mouse methods were private and not
@@ -51,320 +51,320 @@ import flash.net.URLRequest
  * Mouse controller for viewports.
  */
 public final class CustomMouseController extends ViewportControllerBase
-                                   implements IViewportController
+								   implements IViewportController
 {
 
 	
-    //--------------------------------------------------------------------------
-    //
-    //  Class constants
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Class constants
+	//
+	//--------------------------------------------------------------------------
 
-    private static const CLICK_THRESHOLD_DURATION:Number = 500 // milliseconds
-    private static const CLICK_THRESHOLD_DISTANCE:Number = 8 // pixels
+	private static const CLICK_THRESHOLD_DURATION:Number = 500 // milliseconds
+	private static const CLICK_THRESHOLD_DISTANCE:Number = 8 // pixels
 
-    private static const DEFAULT_CLICK_ZOOM_IN_FACTOR:Number = 2.0
-    private static const DEFAULT_CLICK_ZOOM_OUT_FACTOR:Number = 0.3
+	private static const DEFAULT_CLICK_ZOOM_IN_FACTOR:Number = 2.0
+	private static const DEFAULT_CLICK_ZOOM_OUT_FACTOR:Number = 0.3
 
-    private static const DEFAULT_MOUSE_WHEEL_ZOOM_FACTOR:Number = 1.11
+	private static const DEFAULT_MOUSE_WHEEL_ZOOM_FACTOR:Number = 1.11
 
 	private var image:MultiScaleImage
 	private var squares:SquaresDescriptor
 	
-    //--------------------------------------------------------------------------
-    //
-    //  Constructor
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Constructor
+	//
+	//--------------------------------------------------------------------------
 
-    /**
-     *  Constructor.
-     */
-    public function CustomMouseController(imageParam:MultiScaleImage, squaresParam:SquaresDescriptor)
-    {
+	/**
+	 *	Constructor.
+	 */
+	public function CustomMouseController(imageParam:MultiScaleImage, squaresParam:SquaresDescriptor)
+	{
 		image = imageParam
 		squares = squaresParam
-        createClickTimer()		
-    }
+		createClickTimer()		
+	}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Variables
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Variables
+	//
+	//--------------------------------------------------------------------------
 
-    private var clickTimer:Timer
-    private var click:Boolean = false
-    private var mouseDownPosition:Point
+	private var clickTimer:Timer
+	private var click:Boolean = false
+	private var mouseDownPosition:Point
 
-    private var viewDragVector:Rectangle = new Rectangle()
-    private var viewportDragVector:Rectangle = new Rectangle()
-    private var panning:Boolean = false
+	private var viewDragVector:Rectangle = new Rectangle()
+	private var viewportDragVector:Rectangle = new Rectangle()
+	private var panning:Boolean = false
 
-    //----------------------------------
-    //  minMouseWheelZoomInFactor
-    //----------------------------------
+	//----------------------------------
+	//	minMouseWheelZoomInFactor
+	//----------------------------------
 
-    public var minMouseWheelZoomInFactor:Number = 1
+	public var minMouseWheelZoomInFactor:Number = 1
 
-    //----------------------------------
-    //  minMouseWheelZoomOutFactor
-    //----------------------------------
+	//----------------------------------
+	//	minMouseWheelZoomOutFactor
+	//----------------------------------
 
-    public var minMouseWheelZoomOutFactor:Number = 1
+	public var minMouseWheelZoomOutFactor:Number = 1
 
-    //----------------------------------
-    //  smoothPanning
-    //----------------------------------
+	//----------------------------------
+	//	smoothPanning
+	//----------------------------------
 
-    public var smoothPanning:Boolean = true
+	public var smoothPanning:Boolean = true
 
-    //----------------------------------
-    //  clickEnabled
-    //----------------------------------
+	//----------------------------------
+	//	clickEnabled
+	//----------------------------------
 
-    public var clickEnabled:Boolean = true
+	public var clickEnabled:Boolean = true
 
-    //----------------------------------
-    //  clickZoomInFactor
-    //----------------------------------
+	//----------------------------------
+	//	clickZoomInFactor
+	//----------------------------------
 
-    private var _clickZoomInFactor:Number = DEFAULT_CLICK_ZOOM_IN_FACTOR
+	private var _clickZoomInFactor:Number = DEFAULT_CLICK_ZOOM_IN_FACTOR
 
-    /**
-     * Factor for zooming into the scene through clicking.
-     *
-     * @default 2.0
-     */
-    public function get clickZoomInFactor():Number
-    {
-        return _clickZoomInFactor
-    }
+	/**
+	 * Factor for zooming into the scene through clicking.
+	 *
+	 * @default 2.0
+	 */
+	public function get clickZoomInFactor():Number
+	{
+		return _clickZoomInFactor
+	}
 
-    public function set clickZoomInFactor(value:Number):void
-    {
-        _clickZoomInFactor = value
-    }
+	public function set clickZoomInFactor(value:Number):void
+	{
+		_clickZoomInFactor = value
+	}
 
-    //----------------------------------
-    //  clickZoomOutFactor
-    //----------------------------------
+	//----------------------------------
+	//	clickZoomOutFactor
+	//----------------------------------
 
-    private var _clickZoomOutFactor:Number = DEFAULT_CLICK_ZOOM_OUT_FACTOR
+	private var _clickZoomOutFactor:Number = DEFAULT_CLICK_ZOOM_OUT_FACTOR
 
-    /**
-     * Factor for zooming out of the scene through Shift-/Ctrl-clicking.
-     *
-     * @default 0.3
-     */
-    public function get clickZoomOutFactor():Number
-    {
-        return _clickZoomOutFactor
-    }
+	/**
+	 * Factor for zooming out of the scene through Shift-/Ctrl-clicking.
+	 *
+	 * @default 0.3
+	 */
+	public function get clickZoomOutFactor():Number
+	{
+		return _clickZoomOutFactor
+	}
 
-    public function set clickZoomOutFactor(value:Number):void
-    {
-        _clickZoomOutFactor = value
-    }
+	public function set clickZoomOutFactor(value:Number):void
+	{
+		_clickZoomOutFactor = value
+	}
 
-    //----------------------------------
-    //  mouseWheelZoomFactor
-    //----------------------------------
+	//----------------------------------
+	//	mouseWheelZoomFactor
+	//----------------------------------
 
-    private var _mouseWheelZoomFactor:Number = DEFAULT_MOUSE_WHEEL_ZOOM_FACTOR
+	private var _mouseWheelZoomFactor:Number = DEFAULT_MOUSE_WHEEL_ZOOM_FACTOR
 
-    /**
-     * Factor for zooming the scene through the mouse wheel.
-     *
-     * @default 0.05
-     */
-    public function get mouseWheelZoomFactor():Number
-    {
-        return _mouseWheelZoomFactor
-    }
+	/**
+	 * Factor for zooming the scene through the mouse wheel.
+	 *
+	 * @default 0.05
+	 */
+	public function get mouseWheelZoomFactor():Number
+	{
+		return _mouseWheelZoomFactor
+	}
 
-    public function set mouseWheelZoomFactor(value:Number):void
-    {
-        _mouseWheelZoomFactor = value
-    }
+	public function set mouseWheelZoomFactor(value:Number):void
+	{
+		_mouseWheelZoomFactor = value
+	}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Methods: Internal
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Methods: Internal
+	//
+	//--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    private function createClickTimer():void
-    {
-        clickTimer = new Timer(CLICK_THRESHOLD_DURATION, 1)
-        clickTimer.addEventListener(TimerEvent.TIMER_COMPLETE,
-                                    clickTimer_completeHandler,
-                                    false, 0, true)
-    }
+	/**
+	 * @private
+	 */
+	private function createClickTimer():void
+	{
+		clickTimer = new Timer(CLICK_THRESHOLD_DURATION, 1)
+		clickTimer.addEventListener(TimerEvent.TIMER_COMPLETE,
+									clickTimer_completeHandler,
+									false, 0, true)
+	}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Overridden methods: ViewportControllerBase
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Overridden methods: ViewportControllerBase
+	//
+	//--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    override protected function view_addedToStageHandler(event:Event):void
-    {
-        // panning listeners
-        view.addEventListener(MouseEvent.MOUSE_DOWN,
-                              view_mouseDownHandler,
-                              false, 0, true)
-        view.addEventListener(MouseEvent.ROLL_OUT,
-                              view_rollOutHandler,
-                              false, 0, true)
-        view.stage.addEventListener(Event.MOUSE_LEAVE,
-                                    stage_mouseLeaveHandler,
-                                    false, 0, true)
+	/**
+	 * @private
+	 */
+	override protected function view_addedToStageHandler(event:Event):void
+	{
+		// panning listeners
+		view.addEventListener(MouseEvent.MOUSE_DOWN,
+							  view_mouseDownHandler,
+							  false, 0, true)
+		view.addEventListener(MouseEvent.ROLL_OUT,
+							  view_rollOutHandler,
+							  false, 0, true)
+		view.stage.addEventListener(Event.MOUSE_LEAVE,
+									stage_mouseLeaveHandler,
+									false, 0, true)
 
-        // zooming listeners
-        view.addEventListener(MouseEvent.MOUSE_WHEEL,
-                              view_mouseWheelHandler,
-                              false, 0, true)
-    }
+		// zooming listeners
+		view.addEventListener(MouseEvent.MOUSE_WHEEL,
+							  view_mouseWheelHandler,
+							  false, 0, true)
+	}
 
-    /**
-     * @private
-     */
-    override protected function view_removedFromStageHandler(event:Event):void
-    {
-    	if (view)
-    	{
-	        // panning listeners
-	        view.removeEventListener(MouseEvent.MOUSE_DOWN,
-	                                 view_mouseDownHandler)
-	        view.removeEventListener(MouseEvent.ROLL_OUT,
-	                                 view_rollOutHandler)
-	                                 
-            if (view.stage) 
-		        view.stage.removeEventListener(Event.MOUSE_LEAVE,
-		                                       stage_mouseLeaveHandler)
+	/**
+	 * @private
+	 */
+	override protected function view_removedFromStageHandler(event:Event):void
+	{
+		if (view)
+		{
+			// panning listeners
+			view.removeEventListener(MouseEvent.MOUSE_DOWN,
+									 view_mouseDownHandler)
+			view.removeEventListener(MouseEvent.ROLL_OUT,
+									 view_rollOutHandler)
+									 
+			if (view.stage) 
+				view.stage.removeEventListener(Event.MOUSE_LEAVE,
+											   stage_mouseLeaveHandler)
 	
-	        // zooming listeners
-	        view.removeEventListener(MouseEvent.MOUSE_WHEEL,
-	                                 view_mouseWheelHandler)
-    	}
-    }
+			// zooming listeners
+			view.removeEventListener(MouseEvent.MOUSE_WHEEL,
+									 view_mouseWheelHandler)
+		}
+	}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Event Handlers: Zooming
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Event Handlers: Zooming
+	//
+	//--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    private function view_mouseWheelHandler(event:MouseEvent):void
-    {
-        // prevent zooming when panning
-        if (panning)
-            return
+	/**
+	 * @private
+	 */
+	private function view_mouseWheelHandler(event:MouseEvent):void
+	{
+		// prevent zooming when panning
+		if (panning)
+			return
 
-        // FIXME: Supposedly prevents unwanted scrolling in browsers
+		// FIXME: Supposedly prevents unwanted scrolling in browsers
 		// Though it doesn't seem to work http://www.actionscript.org/forums/showthread.php3?t=145307
 		// Perhaps JavaScript could detect if the mouse is over the flash control and stop it?
-        event.stopPropagation()
+		event.stopPropagation()
 
-        // TODO: React appropriately to different platforms and/or browsers,
-        // as they at times report completely different mouse wheel deltas.
-        var factor:Number = clamp(Math.pow(mouseWheelZoomFactor, event.delta), 0.5, 3)
+		// TODO: React appropriately to different platforms and/or browsers,
+		// as they at times report completely different mouse wheel deltas.
+		var factor:Number = clamp(Math.pow(mouseWheelZoomFactor, event.delta), 0.5, 3)
 
-        // TODO: Refactor
-        if (factor < 1)
-            factor = Math.min(factor, minMouseWheelZoomOutFactor)
-        else
-            factor = Math.max(factor, minMouseWheelZoomInFactor)
+		// TODO: Refactor
+		if (factor < 1)
+			factor = Math.min(factor, minMouseWheelZoomOutFactor)
+		else
+			factor = Math.max(factor, minMouseWheelZoomInFactor)
 
-        // compute normalized origin of mouse relative to viewport.
-        var originX:Number = view.mouseX / view.width
-        var originY:Number = view.mouseY / view.height
+		// compute normalized origin of mouse relative to viewport.
+		var originX:Number = view.mouseX / view.width
+		var originY:Number = view.mouseY / view.height
 
-        // transform viewport
-        viewport.zoomBy(factor, originX, originY)
+		// transform viewport
+		viewport.zoomBy(factor, originX, originY)
 
-        // TODO
-        event.updateAfterEvent()
-    }
+		// TODO
+		event.updateAfterEvent()
+	}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Event Handlers: Panning
-    //
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	//	Event Handlers: Panning
+	//
+	//--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    private function clickTimer_completeHandler(event:TimerEvent):void
-    {
-        click = false
-        clickTimer.reset()
-    }
+	/**
+	 * @private
+	 */
+	private function clickTimer_completeHandler(event:TimerEvent):void
+	{
+		click = false
+		clickTimer.reset()
+	}
 
-    /**
-     * @private
-     */
-    private function view_mouseDownHandler(event:MouseEvent):void
-    {
-        view.addEventListener(MouseEvent.MOUSE_UP,
-                              view_mouseUpHandler,
-                              false, 0, true)
+	/**
+	 * @private
+	 */
+	private function view_mouseDownHandler(event:MouseEvent):void
+	{
+		view.addEventListener(MouseEvent.MOUSE_UP,
+							  view_mouseUpHandler,
+							  false, 0, true)
 
-        // remember mouse position
-        mouseDownPosition = new Point(view.mouseX, view.mouseY)
+		// remember mouse position
+		mouseDownPosition = new Point(view.mouseX, view.mouseY)
 
-        // assume mouse down is a click
-        click = true
+		// assume mouse down is a click
+		click = true
 
-        // start click timer
-        clickTimer.reset()
-        clickTimer.start()
+		// start click timer
+		clickTimer.reset()
+		clickTimer.start()
 
-        // register where we are in the view as well as in the viewport
-        viewDragVector.topLeft = new Point(view.mouseX, view.mouseY)
-        viewportDragVector.topLeft = new Point(viewport.transformer.target.x,
-                                               viewport.transformer.target.y)
+		// register where we are in the view as well as in the viewport
+		viewDragVector.topLeft = new Point(view.mouseX, view.mouseY)
+		viewportDragVector.topLeft = new Point(viewport.transformer.target.x,
+											   viewport.transformer.target.y)
 
-        beginPanning()
-    }
+		beginPanning()
+	}
 
-    /**
-     * @private
-     */
-    private function view_mouseMoveHandler(event:MouseEvent):void
-    {
-        if (!panning)
-            return
+	/**
+	 * @private
+	 */
+	private function view_mouseMoveHandler(event:MouseEvent):void
+	{
+		if (!panning)
+			return
 
 		// update view drag vector
-        viewDragVector.bottomRight = new Point(view.mouseX, view.mouseY)
+		viewDragVector.bottomRight = new Point(view.mouseX, view.mouseY)
 
-        var distanceX:Number
-        var distanceY:Number
-        var targetX:Number
-        var targetY:Number
+		var distanceX:Number
+		var distanceY:Number
+		var targetX:Number
+		var targetY:Number
 
-        distanceX = viewDragVector.width / viewport.viewportWidth
-        distanceY = viewDragVector.height / viewport.viewportHeight
+		distanceX = viewDragVector.width / viewport.viewportWidth
+		distanceY = viewDragVector.height / viewport.viewportHeight
 
-        targetX = viewportDragVector.x - (distanceX * viewport.width)
-        targetY = viewportDragVector.y - (distanceY * viewport.height)
+		targetX = viewportDragVector.x - (distanceX * viewport.width)
+		targetY = viewportDragVector.y - (distanceY * viewport.height)
 
-        // FIXME: Zoom skipping when smoothPanning = false
-        viewport.panTo(targetX, targetY, !smoothPanning)
-    }
+		// FIXME: Zoom skipping when smoothPanning = false
+		viewport.panTo(targetX, targetY, !smoothPanning)
+	}
 
 	// click action broken out into its own code so that it may be overridden
 	protected function view_clickAction(imagePoint:Point):void
@@ -380,21 +380,21 @@ public final class CustomMouseController extends ViewportControllerBase
 		navigateToURL(urlRequest, "_blank");
 	}
 	
-    /**
-     * @private
-     */
-    private function view_mouseUpHandler(event:MouseEvent):void
-    {
-        view.removeEventListener(MouseEvent.MOUSE_UP, view_mouseUpHandler)
+	/**
+	 * @private
+	 */
+	private function view_mouseUpHandler(event:MouseEvent):void
+	{
+		view.removeEventListener(MouseEvent.MOUSE_UP, view_mouseUpHandler)
 
-        var mouseUpPosition:Point = new Point(view.mouseX, view.mouseY)
-        var dx:Number = mouseUpPosition.x - mouseDownPosition.x
-        var dy:Number = mouseUpPosition.y - mouseDownPosition.y
+		var mouseUpPosition:Point = new Point(view.mouseX, view.mouseY)
+		var dx:Number = mouseUpPosition.x - mouseDownPosition.x
+		var dy:Number = mouseUpPosition.y - mouseDownPosition.y
 
-        var distance:Number = Math.sqrt(dx * dx + dy * dy)
+		var distance:Number = Math.sqrt(dx * dx + dy * dy)
 
-        if (clickEnabled && click && distance < CLICK_THRESHOLD_DISTANCE)
-        {
+		if (clickEnabled && click && distance < CLICK_THRESHOLD_DISTANCE)
+		{
 			var imagePoint:Point = squares.getImagePointFromMouseEvent(image, event)
 			if (imagePoint != null)
 			{
@@ -410,57 +410,57 @@ public final class CustomMouseController extends ViewportControllerBase
 					view_clickAction(imagePoint)
 				}
 			}
-        }
+		}
 
-        click = false
-        clickTimer.reset()
+		click = false
+		clickTimer.reset()
 
-        stopPanning()
-    }
+		stopPanning()
+	}
 
-    /**
-     * @private
-     */
-    private function beginPanning():void
-    {
-        // begin panning
-        panning = true
+	/**
+	 * @private
+	 */
+	private function beginPanning():void
+	{
+		// begin panning
+		panning = true
 
-        // register for mouse move events
-        view.addEventListener(MouseEvent.MOUSE_MOVE,
-                              view_mouseMoveHandler,
-                              false, 0, true)
-    }
+		// register for mouse move events
+		view.addEventListener(MouseEvent.MOUSE_MOVE,
+							  view_mouseMoveHandler,
+							  false, 0, true)
+	}
 
-    /**
-     * @private
-     */
-    private function stopPanning():void
-    {
-        // unregister from mouse move events
-        // FIXME
-        if (view)
-            view.removeEventListener(MouseEvent.MOUSE_MOVE,
-                                     view_mouseMoveHandler)
+	/**
+	 * @private
+	 */
+	private function stopPanning():void
+	{
+		// unregister from mouse move events
+		// FIXME
+		if (view)
+			view.removeEventListener(MouseEvent.MOUSE_MOVE,
+									 view_mouseMoveHandler)
 
-        panning = false
-    }
+		panning = false
+	}
 
-    /**
-     * @private
-     */
-    private function stage_mouseLeaveHandler(event:Event):void
-    {
-        stopPanning()
-    }
+	/**
+	 * @private
+	 */
+	private function stage_mouseLeaveHandler(event:Event):void
+	{
+		stopPanning()
+	}
 
-    /**
-     * @private
-     */
-    private function view_rollOutHandler(event:MouseEvent):void
-    {
-        stopPanning()
-    }
+	/**
+	 * @private
+	 */
+	private function view_rollOutHandler(event:MouseEvent):void
+	{
+		stopPanning()
+	}
 }
 
 }

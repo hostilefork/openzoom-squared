@@ -38,19 +38,19 @@ package
 		 * super-class actually draw the line, it only stores properties 
 		 * that inform a PolyLine layer of what to draw
 		 * 
-		 * @param startPos  The start point of a line segment relative to the 
-		 * 					original size of the source image 
+		 * @param startPos	The start point of a line segment relative to the 
+		 *					original size of the source image 
 		 * 
-		 * @param endPos    The end point of a line segment relative to the 
-		 * 					original size of the source image
+		 * @param endPos	The end point of a line segment relative to the 
+		 *					original size of the source image
 		 */
 		public function CustomPolylineSegment( startPos:Point, endPos:Point )
 		{
 			super();
-			_thickness 	= 2;
-			_start 		= startPos;
-			_end   		= endPos;
-			_color 		= Math.random() * 0xFFFFFF;
+			_thickness	= 2;
+			_start		= startPos;
+			_end		= endPos;
+			_color		= Math.random() * 0xFFFFFF;
 		}
 	}
 }
